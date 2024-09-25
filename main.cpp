@@ -1,35 +1,32 @@
 #include <stdio.h>
 
-#include "dump.h"
 #include "stack.h"
 
 int main() {
     STACK stackInfo = {};
 
-    //dump(&stackInfo, stdout);
-    StackCtor(&stackInfo, 10);
-    StackPush(&stackInfo, 1);
-    StackPush(&stackInfo, 2);
-    StackPush(&stackInfo, 3);
-    StackPush(&stackInfo, 4);
+    stack_ctor(&stackInfo, 10);
+    stack_push(&stackInfo, 1);
+    stack_push(&stackInfo, 2);
+    stack_push(&stackInfo, 3);
+    stack_push(&stackInfo, 4);
+    stack_ok  (&stackInfo, stdout);
 
-    //dump(&stackInfo, stdout);
-    StackPush(&stackInfo, 5);
-    StackPush(&stackInfo, 6);
-    StackPush(&stackInfo, 7);
-    StackPush(&stackInfo, 8);
-    StackPush(&stackInfo, 9);
-    StackPush(&stackInfo, 10);
-    StackPush(&stackInfo, 11);
+    stack_push(&stackInfo, 5);
+    stack_push(&stackInfo, 6);
+    stack_push(&stackInfo, 7);
+    stack_push(&stackInfo, 8);
+    stack_push(&stackInfo, 9);
+    stack_push(&stackInfo, 10);
+    stack_push(&stackInfo, 11);
 
-    //dump(&stackInfo, stdout);
-    StackPop(&stackInfo);
-    StackPop(&stackInfo);
-    StackPop(&stackInfo);
-    StackPop(&stackInfo);
-    StackPop(&stackInfo);
-
-    dump(&stackInfo, stdout);
+    stack_pop(&stackInfo);
+    stack_pop(&stackInfo);
+    stack_pop(&stackInfo);
+    stack_pop(&stackInfo);
+    stack_pop(&stackInfo);
+    //stack_dump(&stackInfo, stdout);
+    ASSERT(2 == 1);
 
     return 0;
 }

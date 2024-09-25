@@ -3,7 +3,7 @@ CC=g++
 OBJECTS_DIR=build
 OUTFILE=stack
 
-SOURCES=main.cpp stack.cpp dump.cpp ColorSchemeChanger.cpp
+SOURCES=main.cpp stack.cpp color_scheme_changer.cpp
 
 CFLAGS= -D _DEBUG -ggdb3 -std=c++17 -O0 -Wall -Wextra -Weffc++ -Waggressive-loop-optimizations \
 		-Wc++14-compat -Wmissing-declarations -Wcast-align -Wcast-qual -Wchar-subscripts \

@@ -3,8 +3,9 @@
 #include <cstdio>
 
 #include "stack.h"
+#include "color_scheme_changer.h"
 
-int StackCtor(STACK* stackInfo, size_t capacity)
+int stack_ctor(STACK* stackInfo, size_t capacity)
 {
     assert(stackInfo);
 
@@ -28,13 +29,13 @@ int StackCtor(STACK* stackInfo, size_t capacity)
     return 0;
 }
 
-int StackPush(STACK* stackInfo, StackElem_t elem)
+int stack_push(STACK* stackInfo, StackElem_t elem)
 {
     assert(stackInfo);
 
     if (stackInfo->size >= stackInfo->capacity)
     {
-        StackRealloc(stackInfo, INCREASE);
+        stack_realloc(stackInfo, INCREASE);
     }
 
     stackInfo->size++;
@@ -43,7 +44,7 @@ int StackPush(STACK* stackInfo, StackElem_t elem)
     return 0;
 }
 
-int StackPop(STACK* stackInfo)
+int stack_pop(STACK* stackInfo)
 {
     if (stackInfo->size < 0)
     {
@@ -55,13 +56,13 @@ int StackPop(STACK* stackInfo)
     stackInfo->size--;
     if (stackInfo->size < stackInfo->capacity / 2 + 2)
     {
-        StackRealloc(stackInfo, DECREASE);
+        stack_realloc(stackInfo, DECREASE);
     }
 
     return popValue;
 }
 
-int StackRealloc(STACK* stackInfo, RESIZE param)
+int stack_realloc(STACK* stackInfo, RESIZE param)
 {
     if (param == INCREASE)
     {
@@ -88,7 +89,7 @@ int StackRealloc(STACK* stackInfo, RESIZE param)
     return 0;
 }
 
-int StackDtor(STACK* stackInfo)
+int stack_dtor(STACK* stackInfo)
 {
     free(stackInfo->stack);
     stackInfo->size = 0;
@@ -97,10 +98,56 @@ int StackDtor(STACK* stackInfo)
     return 0;
 }
 
-int StackDump(STACK* stackInfo)
+int stack_dump(STACK* stackInfo, FILE* file)
 {
-    FILE* file = NULL;
-    file = fopen("dump.txt", "w");
+    graphic_printf(WHITE, BOLD, "Stack size     %10d\n", stackInfo->size);
+    graphic_printf(WHITE, BOLD, "Stack capacity %10d\n", stackInfo->capacity);
+    graphic_printf(WHITE, BOLD, "Stack elements list\n");
+
+    for (size_t element_index = 0; element_index < stackInfo->capacity; element_index++)
+    {
+        graphic_printf(GREEN, BOLD, "\tstack[%3d]  %5d\n", element_index, stackInfo->stack[element_index]);
+    }
+
+    return 0;
+}
+
+int stack_ok(STACK* stackInfo, FILE* file)
+{
+    if (stackInfo->size < -1)
+    {
+        stack_dump(stackInfo, file);
+        assert(0 && "size < -1");
+    }
+    if (stackInfo->capacity < 0)
+    {
+        stack_dump(stackInfo, file);
+        assert(0 && "capacity not positive");
+    }
+    if (!stackInfo->stack)
+    {
+        stack_dump(stackInfo, file);
+        assert(0 && "not space for stack");
+    }
+    if (stackInfo->size > stackInfo->capacity)
+    {
+        stack_dump(stackInfo, file);
+        ASSERT(0 && "break limit size");
+    }
+    return 0;
+}
+
+int stack_str_error(STACK* stackInfo, STACK_ERROR stack_error)
+{
+    //#define DESCR_(_error) \
+    //    case _error: return #_error
+//
+    //switch(stack_error)
+    //{
+    //    DESCR_(STACK_BAD_PTR);
+    //}
+//
+    //#undef DESCR_
 
     return 0;
 }

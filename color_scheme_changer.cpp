@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <assert.h>
 
-#include "ColorSchemeChanger.h"
+#include "color_scheme_changer.h"
 
 void graphic_printf(COLOR color, STYLE style, const char *st, ...) {
     assert(st);
