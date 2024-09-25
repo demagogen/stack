@@ -1,0 +1,3 @@
+[submodule "ColorSchemeChanger"]
+	path = ColorSchemeChanger
+	url = https://github.com/demagogen/ColorSchemeChanger.git
