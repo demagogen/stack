@@ -27,7 +27,7 @@ int main() {
     stack_pop(&stackInfo);
     //stack_dump(&stackInfo, stdout);
     ASSERT(2 == 1);
-    log_info("Struct info %d", stackInfo.size);
+    LOG_INFO("Struct info %d", stackInfo.size);
 
     return 0;
 }

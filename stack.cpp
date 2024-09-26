@@ -5,6 +5,8 @@
 #include "stack.h"
 #include "color_scheme_changer.h"
 
+#define DUMP_FILE stdout
+
 int stack_ctor(STACK* stackInfo, size_t capacity)
 {
     assert(stackInfo);
@@ -17,6 +19,7 @@ int stack_ctor(STACK* stackInfo, size_t capacity)
     {
         stackInfo->capacity = 1;
         stackInfo->size = EMPTY;
+        stackInfo->stack_error = NONE;
         stackInfo->stack = (StackElem_t* ) calloc(stackInfo->capacity, sizeof(StackElem_t));
     }
     else
@@ -24,6 +27,7 @@ int stack_ctor(STACK* stackInfo, size_t capacity)
         stackInfo->capacity = capacity;
         stackInfo->size = EMPTY;
         stackInfo->stack = (StackElem_t* ) calloc(stackInfo->capacity, sizeof(StackElem_t));
+        stackInfo->stack_error = NONE;
         assert(stackInfo->stack);
     }
     return 0;
@@ -48,7 +52,8 @@ int stack_pop(STACK* stackInfo)
 {
     if (stackInfo->size < 0)
     {
-        exit(0);
+        stackInfo->stack_error = STACK_UNDERFLOW;
+        stack_dump(stackInfo, DUMP_FILE);
         return -1;
     }
     int popValue = stackInfo->stack[stackInfo->size];
@@ -69,6 +74,8 @@ int stack_realloc(STACK* stackInfo, RESIZE param)
         void* tmp = realloc(stackInfo->stack, 2*stackInfo->capacity*sizeof(StackElem_t));
         if (!tmp)
         {
+            stackInfo->stack_error = STACK_ALLOCATION_ERROR;
+            stack_dump(stackInfo, DUMP_FILE);
             return -1;
         }
         stackInfo->capacity *= 2;
@@ -77,6 +84,8 @@ int stack_realloc(STACK* stackInfo, RESIZE param)
         void* tmp = realloc(stackInfo->stack, (stackInfo->capacity / 2 + 2)*sizeof(StackElem_t));
         if (!tmp)
         {
+            stackInfo->stack_error = STACK_ALLOCATION_ERROR;
+            stack_dump(stackInfo, DUMP_FILE);
             return -1;
         }
         stackInfo->capacity = stackInfo->capacity / 2 + 2;
@@ -94,6 +103,7 @@ int stack_dtor(STACK* stackInfo)
     free(stackInfo->stack);
     stackInfo->size = 0;
     stackInfo->capacity = 0;
+    stackInfo->stack_error = NONE;
 
     return 0;
 }
@@ -137,17 +147,23 @@ int stack_ok(STACK* stackInfo, FILE* file)
     return 0;
 }
 
-const char* stack_str_error(STACK* stackInfo, STACK_ERROR stack_error)
+const char* stack_struct_error(STACK* stackInfo, STACK_ERROR stack_error)
 {
     #define DESCR_(_error) \
         case _error: return #_error
+
     switch(stack_error)
     {
+        DESCR_(NONE);
         DESCR_(STACK_BAD_PTR);
         DESCR_(STACK_BAD_SIZE);
+        DESCR_(STACK_UNDERFLOW);
+        DESCR_(STACK_OVERFLOW);
+        DESCR_(STACK_ALLOCATION_ERROR);
 
         default:
             return "error print error";
     }
+
     #undef DESCR_
 }
