@@ -1,4 +1,4 @@
-#include <stdio.h>
+#include <stdio.h> // TODO unused header
 
 #include "stack.h"
 
@@ -10,7 +10,7 @@ int main() {
     stack_push(&stackInfo, 2);
     stack_push(&stackInfo, 3);
     stack_push(&stackInfo, 4);
-    stack_ok  (&stackInfo, stdout);
+    stack_ok  (&stackInfo, stdout); // TODO verifyStack or checkStack
 
     stack_push(&stackInfo, 5);
     stack_push(&stackInfo, 6);
@@ -26,7 +26,7 @@ int main() {
     stack_pop(&stackInfo);
     stack_pop(&stackInfo);
     //stack_dump(&stackInfo, stdout);
-    ASSERT(2 == 1);
+    ASSERT(2 == 1); // TODO fix assert macro
     LOG_INFO("Struct info %d", stackInfo.size);
 
     return 0;

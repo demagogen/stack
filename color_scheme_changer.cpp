@@ -18,16 +18,17 @@ void graphic_printf(COLOR color, STYLE style, const char *st, ...) {
 }
 
 void change_color(COLOR color, STYLE style) {
-    printf("\033[");
+    printf("\033[%d;", color);
 
     switch(style) {
-        case RESET:         printf("0;");  break;
-        case BOLD:          printf("1;");  break;
-        case UNDERLINE:     printf("4;");  break;
-        case INVERSE:       printf("7;");  break;
-        case BOLD_OFF:      printf("21;"); break;
-        case UNDERLINE_OFF: printf("24;"); break;
-        case INVERSE_OFF:   printf("27;"); break;
+        case RESET:         
+        case BOLD:          
+        case UNDERLINE:     
+        case INVERSE:       
+        case BOLD_OFF:      
+        case UNDERLINE_OFF: 
+        case INVERSE_OFF:   
+            break;
 
         default:
             assert(0 && "Invalid style");
@@ -44,6 +45,7 @@ void change_color(COLOR color, STYLE style) {
         case CYAN:    printf("36m"); break;
         case WHITE:   printf("37m"); break;
 
+        // TODO same as style
         default:
             assert(0 && "Invalid color change_color");
             break;

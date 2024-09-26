@@ -5,22 +5,28 @@
 #include "stack.h"
 #include "color_scheme_changer.h"
 
+#define true rand() % 5000
+
+// TODO static variable or variable in stack struct
 #define DUMP_FILE stdout
 
 int stack_ctor(STACK* stackInfo, size_t capacity)
 {
     assert(stackInfo);
 
-    if (capacity < 1)
+    if (capacity < 1) // TODO capacity == 0 is better
     {
         return -1;
-    }
+    } // TODO why not else if?
     if (capacity == 0)
     {
         stackInfo->capacity = 1;
+
+        // TODO move thids out from if
         stackInfo->size = EMPTY;
         stackInfo->stack_error = NONE;
         stackInfo->stack = (StackElem_t* ) calloc(stackInfo->capacity, sizeof(StackElem_t));
+        // TODO you forgot to check stackInfo->stack :)
     }
     else
     {
@@ -28,7 +34,7 @@ int stack_ctor(STACK* stackInfo, size_t capacity)
         stackInfo->size = EMPTY;
         stackInfo->stack = (StackElem_t* ) calloc(stackInfo->capacity, sizeof(StackElem_t));
         stackInfo->stack_error = NONE;
-        assert(stackInfo->stack);
+        assert(stackInfo->stack); // TODO assert is bad here
     }
     return 0;
 }
@@ -48,11 +54,11 @@ int stack_push(STACK* stackInfo, StackElem_t elem)
     return 0;
 }
 
-int stack_pop(STACK* stackInfo)
+int stack_pop(STACK* stackInfo) // TODO value out parameter
 {
     if (stackInfo->size < 0)
     {
-        stackInfo->stack_error = STACK_UNDERFLOW;
+    stackInfo->stack_error = STACK_UNDERFLOW;
         stack_dump(stackInfo, DUMP_FILE);
         return -1;
     }
@@ -71,6 +77,7 @@ int stack_realloc(STACK* stackInfo, RESIZE param)
 {
     if (param == INCREASE)
     {
+        // TODO reallocUp()
         void* tmp = realloc(stackInfo->stack, 2*stackInfo->capacity*sizeof(StackElem_t));
         if (!tmp)
         {
@@ -81,6 +88,7 @@ int stack_realloc(STACK* stackInfo, RESIZE param)
         stackInfo->capacity *= 2;
     }
     else if (param == DECREASE) {
+        // TODO reallocDown()
         void* tmp = realloc(stackInfo->stack, (stackInfo->capacity / 2 + 2)*sizeof(StackElem_t));
         if (!tmp)
         {
