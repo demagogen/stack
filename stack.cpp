@@ -137,17 +137,17 @@ int stack_ok(STACK* stackInfo, FILE* file)
     return 0;
 }
 
-int stack_str_error(STACK* stackInfo, STACK_ERROR stack_error)
+const char* stack_str_error(STACK* stackInfo, STACK_ERROR stack_error)
 {
-    //#define DESCR_(_error) \
-    //    case _error: return #_error
-//
-    //switch(stack_error)
-    //{
-    //    DESCR_(STACK_BAD_PTR);
-    //}
-//
-    //#undef DESCR_
+    #define DESCR_(_error) \
+        case _error: return #_error
+    switch(stack_error)
+    {
+        DESCR_(STACK_BAD_PTR);
+        DESCR_(STACK_BAD_SIZE);
 
-    return 0;
+        default:
+            return "error print error";
+    }
+    #undef DESCR_
 }

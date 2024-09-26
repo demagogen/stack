@@ -6,8 +6,14 @@
 typedef int StackElem_t;
 
 #define ASSERT(expr) \
-    if (!(expr)) \
-        printf("%s at %s:%d born at %d", __PRETTY_FUNCTION__, __FILE__, __LINE__);
+            if (!(expr)) \
+                 printf("%s at %s:%d born at %d", __PRETTY_FUNCTION__, __FILE__, __LINE__);
+
+#define STACK_ASSERT_FUNC(stack, __FILE__, __LINE__); \
+            printf("assert in %s on %d line\n", __FILE__, __LINE__);
+
+#define log_info(M, ...) fprintf(stderr, "[INFO] (%s:%d) " M "\n",\
+        __FILE__, __LINE__, ##__VA_ARGS__)
 
 enum STACK_ERROR
 {
@@ -42,6 +48,6 @@ int stack_realloc(STACK* stackInfo, RESIZE param);
 int stack_dtor(STACK* stackInfo);
 int stack_dump(STACK* stackInfo, FILE* file);
 int stack_ok(STACK* stackInfo, FILE* file);
-int stack_str_error(STACK* stackInfo, STACK_ERROR stack_error);
+const char* stack_str_error(STACK* stackInfo, STACK_ERROR stack_error);
 
 #endif
