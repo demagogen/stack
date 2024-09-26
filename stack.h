@@ -51,7 +51,7 @@ int stack_push(STACK* stackInfo, StackElem_t elem);
 int stack_pop (STACK* stackInfo);
 int stack_realloc(STACK* stackInfo, RESIZE param);
 int stack_dtor(STACK* stackInfo);
-int stack_dump(STACK* stackInfo, FILE* file);
+int stack_dump(STACK* stackInfo, FILE* file); // TODO #include <stdio.h>
 int stack_ok(STACK* stackInfo, FILE* file);
 const char* stack_struct_error(STACK* stackInfo, STACK_ERROR stack_error);
 
