@@ -1,16 +1,15 @@
-#include <stdio.h> // TODO unused header
-
 #include "stack.h"
 
 int main() {
     STACK stackInfo = {};
+    StackElem_t last_stack_value = 0;
 
     stack_ctor(&stackInfo, 10);
     stack_push(&stackInfo, 1);
     stack_push(&stackInfo, 2);
     stack_push(&stackInfo, 3);
     stack_push(&stackInfo, 4);
-    stack_ok  (&stackInfo, stdout); // TODO verifyStack or checkStack
+    verify_stack(&stackInfo);
 
     stack_push(&stackInfo, 5);
     stack_push(&stackInfo, 6);
@@ -20,11 +19,11 @@ int main() {
     stack_push(&stackInfo, 10);
     stack_push(&stackInfo, 11);
 
-    stack_pop(&stackInfo);
-    stack_pop(&stackInfo);
-    stack_pop(&stackInfo);
-    stack_pop(&stackInfo);
-    stack_pop(&stackInfo);
+    stack_pop(&stackInfo, &last_stack_value);
+    stack_pop(&stackInfo, &last_stack_value);
+    stack_pop(&stackInfo, &last_stack_value);
+    stack_pop(&stackInfo, &last_stack_value);
+    stack_pop(&stackInfo, &last_stack_value);
     //stack_dump(&stackInfo, stdout);
     ASSERT(2 == 1); // TODO fix assert macro
     LOG_INFO("Struct info %d", stackInfo.size);
