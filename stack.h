@@ -16,18 +16,20 @@ typedef int StackElem_t;
 #define LOG_INFO(M, ...) \
     fprintf(stderr, "[INFO] (%s:%d) " M "\n", __FILE__, __LINE__, ##__VA_ARGS__)
 
+#define CANARY_STRUCT_CONST_INIT(canary_const) \
+    const uint64_t canary_const = canary;
+
 #define CANARY_ELEMENT(num) \
     num
 
 #define CANARY_INIT(stack, canary_position) \
     *(stack + canary_position) = canary;
 
-#define CANARY_CHECK(stack, canary_position)  \
-    if (*(stack + canary_position) != canary) \
-    {                                         \
-        stack_dump(stackInfo);                \
-        ASSERT(0 && "canary died");           \
-    }
+#define CANARY_STRUCT_CHECK(canary_stack) \
+    canary_stack != canary
+
+#define CANARY_END_CHECK(stack, canary_position)  \
+    *(stack + canary_position) != canary
 
 const uint64_t canary = 9112001;
 
@@ -56,12 +58,12 @@ enum RESIZE
 
 struct STACK
 {
-    const uint64_t canary1 = canary;
+    CANARY_STRUCT_CONST_INIT(start_struct_canary);
     FILE*          dump_file;
     int            size;
     int            capacity;
     STACK_ERROR    stack_error;
-    const uint64_t canary2 = canary;
+    CANARY_STRUCT_CONST_INIT(end_struct_canary);
     char*          stack;
 };
 

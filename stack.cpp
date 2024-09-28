@@ -109,12 +109,13 @@ int stack_dump(STACK* stackInfo)
 
 int verify_stack(STACK* stackInfo)
 {
-    if (stackInfo->canary1 != canary || stackInfo->canary2 != canary)
+    if (CANARY_STRUCT_CHECK(stackInfo->start_struct_canary) ||
+        CANARY_STRUCT_CHECK(stackInfo->end_struct_canary) ||
+        CANARY_END_CHECK(stackInfo->stack, stackInfo->capacity + CANARY_ELEMENT(sizeof(canary))))
     {
         stack_dump(stackInfo);
         ASSERT(0 && "penetration error");
     }
-    CANARY_CHECK(stackInfo->stack, stackInfo->capacity + CANARY_ELEMENT(sizeof(canary)));
     if (stackInfo->size < -1)
     {
         stack_dump(stackInfo);
