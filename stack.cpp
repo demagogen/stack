@@ -16,27 +16,19 @@ int stack_ctor(STACK* stackInfo, size_t capacity)
     {
         return -1;
     }
-    else if (capacity == 0)
-    {
-        stackInfo->capacity = 1;
-
-        // TODO move thids out from if
-        stackInfo->size = EMPTY;
-        stackInfo->stack_error = NONE;
-        stackInfo->stack = (StackElem_t* ) calloc(stackInfo->capacity, sizeof(StackElem_t));
-        if (verify_stack(stackInfo))
-        {
-            ASSERT(0);
-            return -1;
-        }
-    }
     else
     {
         stackInfo->capacity = capacity;
-        stackInfo->size = EMPTY;
-        stackInfo->stack = (StackElem_t* ) calloc(stackInfo->capacity, sizeof(StackElem_t));
-        stackInfo->stack_error = NONE;
     }
+    stackInfo->capacity = capacity;
+    stackInfo->size = EMPTY;
+    stackInfo->stack_error = NONE;
+    stackInfo->stack = (StackElem_t* ) calloc(stackInfo->capacity, sizeof(StackElem_t));
+    if (verify_stack(stackInfo))
+    {
+        return -1;
+    }
+
     return 0;
 }
 

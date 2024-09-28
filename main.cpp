@@ -4,6 +4,7 @@ int main() {
     STACK stackInfo = {};
     StackElem_t last_stack_value = 0;
 
+    verify_stack(&stackInfo);
     stack_ctor(&stackInfo, 10);
     stack_push(&stackInfo, 1);
     stack_push(&stackInfo, 2);
@@ -24,7 +25,7 @@ int main() {
     stack_pop(&stackInfo, &last_stack_value);
     stack_pop(&stackInfo, &last_stack_value);
     stack_pop(&stackInfo, &last_stack_value);
-    //stack_dump(&stackInfo, stdout);
+    //stack_dump(&stackInfo);
     ASSERT(2 == 1);
     LOG_INFO("Struct info %d", stackInfo.size);
 

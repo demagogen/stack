@@ -42,7 +42,7 @@ enum RESIZE
 struct STACK
 {
     int          size;
-    size_t       capacity;
+    int          capacity;
     StackElem_t* stack;
     STACK_ERROR  stack_error;
     FILE*        dump_file;

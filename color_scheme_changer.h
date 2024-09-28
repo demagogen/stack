@@ -5,14 +5,14 @@
 /// @details Перечислимый тип цветов для функции graphic_printf().
 
 enum COLOR {
-    BLACK   = 0, ///<black nigga
-    RED     = 1, ///<красный
-    GREEN   = 2, ///<зеленый
-    YELLOW  = 3, ///<желтый
-    BLUE    = 4, ///<голубой
-    MAGENTA = 5, ///<магента
-    CYAN    = 6, ///<бирюзовый
-    WHITE   = 7, ///<белый
+    BLACK   = 30, ///<black nigga
+    RED     = 31, ///<красный
+    GREEN   = 32, ///<зеленый
+    YELLOW  = 33, ///<желтый
+    BLUE    = 34, ///<голубой
+    MAGENTA = 35, ///<магента
+    CYAN    = 36, ///<бирюзовый
+    WHITE   = 37, ///<белый
 };
 
 /// @brief Перечислимый тип стилей
@@ -34,7 +34,7 @@ enum STYLE {
 /// @param color цвет
 /// @param style стиль
 
-void change_color(COLOR color, STYLE style);
+void change_color_and_style(COLOR color, STYLE style);
 
 /// @brief Выводит строку с цветом и стилем
 /// \details Выводит строку с цветом color и стилей style
