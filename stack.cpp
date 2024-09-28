@@ -6,24 +6,22 @@
 #include "stack.h"
 #include "color_scheme_changer.h"
 
-#define DUMP_FILE stdout
-
 int stack_ctor(STACK* stackInfo, size_t capacity)
 {
-    assert(stackInfo);
+    ASSERT(stackInfo);
 
-    if (capacity == 0)
+    if (capacity < 0)
     {
         return -1;
     }
-    else
+    else if (capacity == 0)
     {
-        stackInfo->capacity = capacity;
+        capacity = 1;
     }
-    stackInfo->capacity = capacity;
-    stackInfo->size = EMPTY;
+    stackInfo->capacity    = capacity;
+    stackInfo->size        = EMPTY;
     stackInfo->stack_error = NONE;
-    stackInfo->stack = (StackElem_t* ) calloc(stackInfo->capacity, sizeof(StackElem_t));
+    stackInfo->stack       = (StackElem_t* ) calloc(stackInfo->capacity, sizeof(StackElem_t));
     if (verify_stack(stackInfo))
     {
         return -1;
@@ -36,11 +34,10 @@ int stack_push(STACK* stackInfo, StackElem_t elem)
 {
     assert(stackInfo);
 
-    if (stackInfo->size >= stackInfo->capacity)
+    if (stackInfo->size + 1 >= stackInfo->capacity)
     {
         stack_realloc(stackInfo, INCREASE);
     }
-
     stackInfo->size++;
     stackInfo->stack[stackInfo->size] = elem;
 
@@ -70,24 +67,11 @@ int stack_realloc(STACK* stackInfo, RESIZE param)
 {
     if (param == INCREASE)
     {
-        void* tmp = realloc(stackInfo->stack, 2*stackInfo->capacity*sizeof(StackElem_t));
-        if (!tmp)
-        {
-            stackInfo->stack_error = STACK_ALLOCATION_ERROR;
-            stack_dump(stackInfo);
-            return -1;
-        }
-        stackInfo->capacity *= 2;
+        realloc_up(stackInfo);
     }
-    else if (param == DECREASE) {
-        void* tmp = realloc(stackInfo->stack, (stackInfo->capacity / 2 + 2)*sizeof(StackElem_t));
-        if (!tmp)
-        {
-            stackInfo->stack_error = STACK_ALLOCATION_ERROR;
-            stack_dump(stackInfo);
-            return -1;
-        }
-        stackInfo->capacity = stackInfo->capacity / 2 + 2;
+    else if (param == DECREASE)
+    {
+        realloc_down(stackInfo);
     }
     else
     {
@@ -123,20 +107,25 @@ int stack_dump(STACK* stackInfo)
 
 int verify_stack(STACK* stackInfo)
 {
+    if (stackInfo->canary1 != canary || stackInfo->canary2 != canary)
+    {
+        stack_dump(stackInfo);
+        ASSERT(0 && "penetration error");
+    }
     if (stackInfo->size < -1)
     {
         stack_dump(stackInfo);
-        assert(0 && "size < -1");
+        ASSERT(0 && "size < -1");
     }
     if (stackInfo->capacity < 0)
     {
         stack_dump(stackInfo);
-        assert(0 && "capacity not positive");
+        ASSERT(0 && "capacity not positive");
     }
     if (!stackInfo->stack)
     {
         stack_dump(stackInfo);
-        assert(0 && "not space for stack");
+        ASSERT(0 && "not space for stack");
     }
     if (stackInfo->size > stackInfo->capacity)
     {
@@ -174,14 +163,15 @@ int realloc_up(STACK* stackInfo)
         ASSERT(0);
         return -1;
     }
-    void* tmp = realloc(stackInfo->stack, 2*stackInfo->capacity*sizeof(StackElem_t));
-    if (!tmp)
+    stackInfo->capacity *= 2;
+    stackInfo->stack = (StackElem_t* ) realloc(stackInfo->stack, stackInfo->capacity*sizeof(StackElem_t));
+    if (!stackInfo->stack)
     {
         stackInfo->stack_error = STACK_ALLOCATION_ERROR;
         stack_dump(stackInfo);
+        ASSERT(0);
         return -1;
     }
-    stackInfo->capacity *= 2;
 
     return 0;
 }
@@ -195,14 +185,14 @@ int realloc_down(STACK* stackInfo)
     }
     else
     {
-        void* tmp = realloc(stackInfo->stack, (stackInfo->capacity / 2 + 2)*sizeof(StackElem_t));
-        if (!tmp)
+        stackInfo->capacity = stackInfo->capacity / 2 + 2;
+        stackInfo->stack = (StackElem_t* ) realloc(stackInfo->stack, stackInfo->capacity*sizeof(StackElem_t));
+        if (!stackInfo->stack)
         {
             stackInfo->stack_error = STACK_ALLOCATION_ERROR;
             stack_dump(stackInfo);
             return -1;
         }
-        stackInfo->capacity = stackInfo->capacity / 2 + 2;
     }
 
     return 0;

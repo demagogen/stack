@@ -3,27 +3,29 @@
 
 #include <cstddef>
 #include <stdio.h>
+#include <cstdint>
 
 typedef int StackElem_t;
 
 #define ASSERT(expr) \
-    if (!(expr)) \
-        printf("%s at %s:%d born at %s", __PRETTY_FUNCTION__, __FILE__, __LINE__, __func__);
+    if (!(expr)) printf("%s at %s:%d born at %s", __PRETTY_FUNCTION__, __FILE__, __LINE__, __func__);
 
 #define STACK_ASSERT_FUNC(stack, __FILE__, __LINE__); \
     printf("assert in %s on %d line\n", __FILE__, __LINE__);
 
-#define LOG_INFO(M, ...) fprintf(stderr, "[INFO] (%s:%d) " M "\n",\
-    __FILE__, __LINE__, ##__VA_ARGS__)
+#define LOG_INFO(M, ...) \
+    fprintf(stderr, "[INFO] (%s:%d) " M "\n", __FILE__, __LINE__, ##__VA_ARGS__)
+
+const uint64_t canary = 9112001;
 
 enum STACK_ERROR
 {
-    NONE            = -1,
-    STACK_BAD_PTR   = 0,
-    STACK_BAD_SIZE  = 1,
-    STACK_UNDERFLOW = 2,
-    STACK_OVERFLOW  = 3,
-    STACK_ALLOCATION_ERROR = 4
+    NONE                   = -1,
+    STACK_BAD_PTR          =  0,
+    STACK_BAD_SIZE         =  1,
+    STACK_UNDERFLOW        =  2,
+    STACK_OVERFLOW         =  3,
+    STACK_ALLOCATION_ERROR =  4
 };
 
 enum STACK_ENUMS
@@ -41,11 +43,13 @@ enum RESIZE
 
 struct STACK
 {
-    int          size;
-    int          capacity;
-    StackElem_t* stack;
-    STACK_ERROR  stack_error;
-    FILE*        dump_file;
+    const uint64_t canary1 = canary;
+    FILE*          dump_file;
+    int            size;
+    int            capacity;
+    STACK_ERROR    stack_error;
+    const uint64_t canary2 = canary;
+    StackElem_t*          stack;
 };
 
 int         stack_ctor         (STACK* stackInfo, size_t capacity);
