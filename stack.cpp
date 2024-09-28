@@ -21,7 +21,9 @@ int stack_ctor(STACK* stackInfo, size_t capacity)
     stackInfo->capacity    = capacity;
     stackInfo->size        = EMPTY;
     stackInfo->stack_error = NONE;
-    stackInfo->stack       = (StackElem_t* ) calloc(stackInfo->capacity, sizeof(StackElem_t));
+    stackInfo->stack       = (char* ) calloc(stackInfo->capacity + CANARY_ELEMENT(sizeof(canary)),
+                                             sizeof(StackElem_t));
+    CANARY_INIT(stackInfo->stack, stackInfo->capacity + CANARY_ELEMENT(sizeof(canary)));
     if (verify_stack(stackInfo))
     {
         return -1;
@@ -39,7 +41,7 @@ int stack_push(STACK* stackInfo, StackElem_t elem)
         stack_realloc(stackInfo, INCREASE);
     }
     stackInfo->size++;
-    stackInfo->stack[stackInfo->size] = elem;
+    *(stackInfo->stack + stackInfo->size) = elem;
 
     return 0;
 }
@@ -112,6 +114,7 @@ int verify_stack(STACK* stackInfo)
         stack_dump(stackInfo);
         ASSERT(0 && "penetration error");
     }
+    CANARY_CHECK(stackInfo->stack, stackInfo->capacity + CANARY_ELEMENT(sizeof(canary)));
     if (stackInfo->size < -1)
     {
         stack_dump(stackInfo);
@@ -164,7 +167,8 @@ int realloc_up(STACK* stackInfo)
         return -1;
     }
     stackInfo->capacity *= 2;
-    stackInfo->stack = (StackElem_t* ) realloc(stackInfo->stack, stackInfo->capacity*sizeof(StackElem_t));
+    stackInfo->stack = (char* ) realloc(stackInfo->stack,
+                                        stackInfo->capacity*sizeof(StackElem_t) + CANARY_ELEMENT(sizeof(canary)));
     if (!stackInfo->stack)
     {
         stackInfo->stack_error = STACK_ALLOCATION_ERROR;
@@ -186,7 +190,8 @@ int realloc_down(STACK* stackInfo)
     else
     {
         stackInfo->capacity = stackInfo->capacity / 2 + 2;
-        stackInfo->stack = (StackElem_t* ) realloc(stackInfo->stack, stackInfo->capacity*sizeof(StackElem_t));
+        stackInfo->stack = (char* ) realloc(stackInfo->stack,
+                                            stackInfo->capacity*sizeof(StackElem_t) + CANARY_ELEMENT(sizeof(canary)));
         if (!stackInfo->stack)
         {
             stackInfo->stack_error = STACK_ALLOCATION_ERROR;

@@ -16,6 +16,19 @@ typedef int StackElem_t;
 #define LOG_INFO(M, ...) \
     fprintf(stderr, "[INFO] (%s:%d) " M "\n", __FILE__, __LINE__, ##__VA_ARGS__)
 
+#define CANARY_ELEMENT(num) \
+    num
+
+#define CANARY_INIT(stack, canary_position) \
+    *(stack + canary_position) = canary;
+
+#define CANARY_CHECK(stack, canary_position)  \
+    if (*(stack + canary_position) != canary) \
+    {                                         \
+        stack_dump(stackInfo);                \
+        ASSERT(0 && "canary died");           \
+    }
+
 const uint64_t canary = 9112001;
 
 enum STACK_ERROR
@@ -49,7 +62,7 @@ struct STACK
     int            capacity;
     STACK_ERROR    stack_error;
     const uint64_t canary2 = canary;
-    StackElem_t*          stack;
+    char*          stack;
 };
 
 int         stack_ctor         (STACK* stackInfo, size_t capacity);
