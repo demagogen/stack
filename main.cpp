@@ -25,7 +25,7 @@ int main() {
     stack_pop(&stackInfo, &last_stack_value);
     stack_pop(&stackInfo, &last_stack_value);
     //stack_dump(&stackInfo, stdout);
-    ASSERT(2 == 1); // TODO fix assert macro
+    ASSERT(2 == 1);
     LOG_INFO("Struct info %d", stackInfo.size);
 
     return 0;
