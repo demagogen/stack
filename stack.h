@@ -22,22 +22,26 @@ typedef int StackElem_t;
 #define CANARY_ELEMENT(element) element
 
 #define CANARY_INIT(stack, canary_position) \
-    *(stack + canary_position) = canary;    \
+    stack[canary_position] = canary     \
 
 #define CANARY_STRUCT_CHECK(canary_stack) \
     canary_stack != canary                \
 
 #define CANARY_END_CHECK(stack, canary_position) \
-    *(stack + canary_position) != canary         \
+    stack[canary_position] != -63         \
 
 #define HASH_SUM_VARIABLE(name_of_const) \
     uint32_t hash_sum;                   \
+
+#define COUNT_HASH_SUM(stackInfo) \
+    count_hash_sum(stackInfo);    \
 
 #define CHECK_CANARY_PROTECTION                                                                      \
     if (CANARY_STRUCT_CHECK(stackInfo->start_struct_canary) ||                                       \
         CANARY_STRUCT_CHECK(stackInfo->end_struct_canary)   ||                                       \
         CANARY_END_CHECK   (stackInfo->stack, stackInfo->capacity))                                  \
-    {                                                                                                \
+    {\
+        graphic_printf(RED, BOLD, "FUCK YOU CANARY\n");                                    \
         printf("%d\n", CANARY_STRUCT_CHECK(stackInfo->start_struct_canary));                         \
         printf("%d\n", CANARY_STRUCT_CHECK(stackInfo->end_struct_canary));                           \
         printf("%d\n", CANARY_END_CHECK   (stackInfo->stack, stackInfo->capacity));                  \
@@ -47,8 +51,10 @@ typedef int StackElem_t;
 
 #define CHECK_HASH_SUM(stack)             \
     if (check_hash_sum(stack))            \
-    {                                     \
-        stack_dump(stackInfo);            \
+    {\
+        stack_dump(stackInfo); \
+        graphic_printf(RED, BOLD, "fucking hash checker\n");          \
+        assert(0 && "penetration_error\n");        \
         ASSERT(0 && "penetration error"); \
     }                                     \
 

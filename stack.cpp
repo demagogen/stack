@@ -23,6 +23,7 @@ int stack_ctor(STACK* stackInfo, size_t capacity)
     stackInfo->stack_error = NONE;
     stackInfo->stack       = (char* ) calloc(stackInfo->capacity + CANARY_ELEMENT(sizeof(canary)),
                                              sizeof(StackElem_t));
+    COUNT_HASH_SUM(stackInfo);
     CANARY_INIT(stackInfo->stack, stackInfo->capacity);
     if (verify_stack(stackInfo))
     {
@@ -42,6 +43,7 @@ int stack_push(STACK* stackInfo, StackElem_t elem)
     }
     stackInfo->size++;
     *(stackInfo->stack + stackInfo->size) = elem;
+    COUNT_HASH_SUM(stackInfo);
 
     return 0;
 }
@@ -57,7 +59,7 @@ int stack_pop(STACK* stackInfo, StackElem_t* value)
     *value = stackInfo->stack[stackInfo->size];
     stackInfo->stack[stackInfo->size] = EMPTY;
     stackInfo->size--;
-    CANARY_INIT(stackInfo->stack, stackInfo->capacity);
+    COUNT_HASH_SUM(stackInfo);
     if (stackInfo->size < stackInfo->capacity / 2 + 2)
     {
         stack_realloc(stackInfo, DECREASE);
@@ -198,6 +200,7 @@ int realloc_down(STACK* stackInfo)
             return -1;
         }
     }
+    CANARY_INIT(stackInfo->stack, stackInfo->capacity);
 
     return 0;
 }
@@ -222,7 +225,7 @@ int count_hash_sum(STACK* stackInfo)
         return -1;
     }
     stackInfo->hash_sum = 0;
-    for (size_t stack_element = 0; stack_element < stackInfo->size; stack_element++)
+    for (int stack_element = 0; stack_element < stackInfo->size; stack_element++)
     {
         stackInfo->hash_sum += gnu_hash((const StackElem_t* ) (stackInfo->stack + stack_element));
     }
@@ -239,11 +242,11 @@ bool check_hash_sum(STACK* stackInfo)
     }
 
     uint32_t check_hash_sum = 0;
-    for (size_t stack_element = 0; stack_element < stackInfo->size; stack_element++)
+    for (int stack_element = 0; stack_element < stackInfo->size; stack_element++)
     {
         check_hash_sum += gnu_hash((const StackElem_t* ) (stackInfo->stack + stack_element));
     }
-    if (stackInfo->hash_sum != check_hash_sum)
+    if (stackInfo->hash_sum == check_hash_sum)
     {
         return false;
     }
