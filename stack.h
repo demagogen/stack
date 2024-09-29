@@ -7,29 +7,50 @@
 
 typedef int StackElem_t;
 
-#define ASSERT(expr) \
-    if (!(expr)) printf("%s at %s:%d born at %s", __PRETTY_FUNCTION__, __FILE__, __LINE__, __func__);
+#define ASSERT(expr)                                                                                  \
+    if (!(expr)) printf("%s at %s:%d born at %s", __PRETTY_FUNCTION__, __FILE__, __LINE__, __func__); \
 
-#define STACK_ASSERT_FUNC(stack, __FILE__, __LINE__); \
-    printf("assert in %s on %d line\n", __FILE__, __LINE__);
+#define STACK_ASSERT_FUNC(stack, __FILE__, __LINE__);        \
+    printf("assert in %s on %d line\n", __FILE__, __LINE__); \
 
-#define LOG_INFO(M, ...) \
-    fprintf(stderr, "[INFO] (%s:%d) " M "\n", __FILE__, __LINE__, ##__VA_ARGS__)
+#define LOG_INFO(M, ...)                                                         \
+    fprintf(stderr, "[INFO] (%s:%d) " M "\n", __FILE__, __LINE__, ##__VA_ARGS__) \
 
 #define CANARY_STRUCT_CONST_INIT(canary_const) \
-    const uint64_t canary_const = canary;
+    const uint64_t canary_const = canary;      \
 
-#define CANARY_ELEMENT(num) \
-    num
+#define CANARY_ELEMENT(element) element
 
 #define CANARY_INIT(stack, canary_position) \
-    *(stack + canary_position) = canary;
+    *(stack + canary_position) = canary;    \
 
 #define CANARY_STRUCT_CHECK(canary_stack) \
-    canary_stack != canary
+    canary_stack != canary                \
 
-#define CANARY_END_CHECK(stack, canary_position)  \
-    *(stack + canary_position) != canary
+#define CANARY_END_CHECK(stack, canary_position) \
+    *(stack + canary_position) != canary         \
+
+#define HASH_SUM_VARIABLE(name_of_const) \
+    uint32_t hash_sum;                   \
+
+#define CHECK_CANARY_PROTECTION                                                                      \
+    if (CANARY_STRUCT_CHECK(stackInfo->start_struct_canary) ||                                       \
+        CANARY_STRUCT_CHECK(stackInfo->end_struct_canary)   ||                                       \
+        CANARY_END_CHECK   (stackInfo->stack, stackInfo->capacity))                                  \
+    {                                                                                                \
+        printf("%d\n", CANARY_STRUCT_CHECK(stackInfo->start_struct_canary));                         \
+        printf("%d\n", CANARY_STRUCT_CHECK(stackInfo->end_struct_canary));                           \
+        printf("%d\n", CANARY_END_CHECK   (stackInfo->stack, stackInfo->capacity));                  \
+        stack_dump(stackInfo);                                                                       \
+        ASSERT(0 && "penetration error");                                                            \
+    }                                                                                                \
+
+#define CHECK_HASH_SUM(stack)             \
+    if (check_hash_sum(stack))            \
+    {                                     \
+        stack_dump(stackInfo);            \
+        ASSERT(0 && "penetration error"); \
+    }                                     \
 
 const uint64_t canary = 9112001;
 
@@ -58,13 +79,14 @@ enum RESIZE
 
 struct STACK
 {
-    CANARY_STRUCT_CONST_INIT(start_struct_canary);
-    FILE*          dump_file;
-    int            size;
-    int            capacity;
-    STACK_ERROR    stack_error;
-    CANARY_STRUCT_CONST_INIT(end_struct_canary);
-    char*          stack;
+    CANARY_STRUCT_CONST_INIT   (start_struct_canary);
+    FILE*                       dump_file;
+    int                         size;
+    int                         capacity;
+    STACK_ERROR                 stack_error;
+    CANARY_STRUCT_CONST_INIT   (end_struct_canary);
+    HASH_SUM_VARIABLE          (hash_sum);
+    char*                       stack;
 };
 
 int         stack_ctor         (STACK* stackInfo, size_t capacity);
@@ -77,5 +99,8 @@ int         verify_stack       (STACK* stackInfo);
 const char* stack_struct_error (STACK* stackInfo, STACK_ERROR stack_error);
 int         realloc_up         (STACK* stackInfo);
 int         realloc_down       (STACK* stackInfo);
+uint32_t    gnu_hash           (const StackElem_t* element);
+int         count_hash_sum     (STACK* stackInfo);
+bool        check_hash_sum     (STACK* stackInfo);
 
 #endif

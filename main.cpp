@@ -5,6 +5,7 @@ int main() {
     StackElem_t last_stack_value = 0;
 
     stack_ctor(&stackInfo, 5);
+    printf("%lld\n", stackInfo.hash_sum);
     //stack_dump(&stackInfo);
     verify_stack(&stackInfo);
 

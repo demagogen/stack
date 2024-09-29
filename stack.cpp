@@ -23,7 +23,7 @@ int stack_ctor(STACK* stackInfo, size_t capacity)
     stackInfo->stack_error = NONE;
     stackInfo->stack       = (char* ) calloc(stackInfo->capacity + CANARY_ELEMENT(sizeof(canary)),
                                              sizeof(StackElem_t));
-    CANARY_INIT(stackInfo->stack, stackInfo->capacity + CANARY_ELEMENT(sizeof(canary)));
+    CANARY_INIT(stackInfo->stack, stackInfo->capacity);
     if (verify_stack(stackInfo))
     {
         return -1;
@@ -57,6 +57,7 @@ int stack_pop(STACK* stackInfo, StackElem_t* value)
     *value = stackInfo->stack[stackInfo->size];
     stackInfo->stack[stackInfo->size] = EMPTY;
     stackInfo->size--;
+    CANARY_INIT(stackInfo->stack, stackInfo->capacity);
     if (stackInfo->size < stackInfo->capacity / 2 + 2)
     {
         stack_realloc(stackInfo, DECREASE);
@@ -109,13 +110,9 @@ int stack_dump(STACK* stackInfo)
 
 int verify_stack(STACK* stackInfo)
 {
-    if (CANARY_STRUCT_CHECK(stackInfo->start_struct_canary) ||
-        CANARY_STRUCT_CHECK(stackInfo->end_struct_canary) ||
-        CANARY_END_CHECK(stackInfo->stack, stackInfo->capacity + CANARY_ELEMENT(sizeof(canary))))
-    {
-        stack_dump(stackInfo);
-        ASSERT(0 && "penetration error");
-    }
+    CHECK_CANARY_PROTECTION;
+    CHECK_HASH_SUM(stackInfo);
+
     if (stackInfo->size < -1)
     {
         stack_dump(stackInfo);
@@ -170,6 +167,7 @@ int realloc_up(STACK* stackInfo)
     stackInfo->capacity *= 2;
     stackInfo->stack = (char* ) realloc(stackInfo->stack,
                                         stackInfo->capacity*sizeof(StackElem_t) + CANARY_ELEMENT(sizeof(canary)));
+    CANARY_INIT(stackInfo->stack, stackInfo->capacity);
     if (!stackInfo->stack)
     {
         stackInfo->stack_error = STACK_ALLOCATION_ERROR;
@@ -202,4 +200,55 @@ int realloc_down(STACK* stackInfo)
     }
 
     return 0;
+}
+
+uint32_t gnu_hash(const StackElem_t* element)
+{
+    uint32_t hash_coefficient = 5381;
+    uint32_t hash_result = 0;
+
+    for (; *element; element++) {
+        hash_result = (hash_coefficient << 5) + hash_coefficient + *element;
+    }
+
+    return hash_result;
+}
+
+int count_hash_sum(STACK* stackInfo)
+{
+    if (!stackInfo)
+    {
+        verify_stack(stackInfo);
+        return -1;
+    }
+    stackInfo->hash_sum = 0;
+    for (size_t stack_element = 0; stack_element < stackInfo->size; stack_element++)
+    {
+        stackInfo->hash_sum += gnu_hash((const StackElem_t* ) (stackInfo->stack + stack_element));
+    }
+
+    return 0;
+}
+
+bool check_hash_sum(STACK* stackInfo)
+{
+    if (!stackInfo)
+    {
+        verify_stack(stackInfo);
+        return false;
+    }
+
+    uint32_t check_hash_sum = 0;
+    for (size_t stack_element = 0; stack_element < stackInfo->size; stack_element++)
+    {
+        check_hash_sum += gnu_hash((const StackElem_t* ) (stackInfo->stack + stack_element));
+    }
+    if (stackInfo->hash_sum != check_hash_sum)
+    {
+        return false;
+    }
+    else
+    {
+        return true;
+    }
 }
