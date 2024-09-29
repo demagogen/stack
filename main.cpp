@@ -6,6 +6,7 @@ int main() {
     printf("start using stack\n");
     stack_ctor(&stackInfo, 5);
     printf("end ctor\n");
+    printf("%ld\n", *(stackInfo.stack + stackInfo.capacity));
     printf("1  %lld\n", stackInfo.hash_sum);
     //stack_dump(&stackInfo);
     verify_stack(&stackInfo);

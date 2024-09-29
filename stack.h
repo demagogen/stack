@@ -19,16 +19,16 @@ typedef int StackElem_t;
 #define CANARY_STRUCT_CONST_INIT(canary_const) \
     const uint64_t canary_const = canary;      \
 
-#define CANARY_ELEMENT(element) element
+#define CANARY_ELEMENT(element) element / sizeof(StackElem_t)
 
 #define CANARY_INIT(stack, canary_position) \
-    stack[canary_position] = canary     \
+    *(stack + canary_position) = canary     \
 
 #define CANARY_STRUCT_CHECK(canary_stack) \
     canary_stack != canary                \
 
 #define CANARY_END_CHECK(stack, canary_position) \
-    stack[canary_position] != -63         \
+    *(stack + canary_position) != canary         \
 
 #define HASH_SUM_VARIABLE(name_of_const) \
     uint32_t hash_sum;                   \
@@ -40,8 +40,8 @@ typedef int StackElem_t;
     if (CANARY_STRUCT_CHECK(stackInfo->start_struct_canary) ||                                       \
         CANARY_STRUCT_CHECK(stackInfo->end_struct_canary)   ||                                       \
         CANARY_END_CHECK   (stackInfo->stack, stackInfo->capacity))                                  \
-    {\
-        graphic_printf(RED, BOLD, "FUCK YOU CANARY\n");                                    \
+    {                                                                                                \
+        graphic_printf(RED, BOLD, "FUCK YOU CANARY\n");                                              \
         printf("%d\n", CANARY_STRUCT_CHECK(stackInfo->start_struct_canary));                         \
         printf("%d\n", CANARY_STRUCT_CHECK(stackInfo->end_struct_canary));                           \
         printf("%d\n", CANARY_END_CHECK   (stackInfo->stack, stackInfo->capacity));                  \
@@ -51,14 +51,14 @@ typedef int StackElem_t;
 
 #define CHECK_HASH_SUM(stack)             \
     if (check_hash_sum(stack))            \
-    {\
-        stack_dump(stackInfo); \
-        graphic_printf(RED, BOLD, "fucking hash checker\n");          \
-        assert(0 && "penetration_error\n");        \
-        ASSERT(0 && "penetration error"); \
-    }                                     \
+    {                                     \
+        stack_dump(stackInfo);            \
+        graphic_printf(RED, BOLD, "fucking hash checker\n"); \
+        assert(0 && "penetration_error\n");                  \
+        ASSERT(0 && "penetration error");                    \
+    }                                                        \
 
-const uint64_t canary = 9112001;
+const uint64_t canary = 123;
 
 enum STACK_ERROR
 {

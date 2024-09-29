@@ -52,7 +52,7 @@ int stack_pop(STACK* stackInfo, StackElem_t* value)
 {
     if (stackInfo->size < 0)
     {
-    stackInfo->stack_error = STACK_UNDERFLOW;
+        stackInfo->stack_error = STACK_UNDERFLOW;
         stack_dump(stackInfo);
         return -1;
     }
