@@ -6,6 +6,7 @@
 #include <cstdint>
 
 typedef int StackElem_t;
+typedef uint64_t Canary_t;
 
 #define ASSERT(expr)                                                                                  \
     if (!(expr)) printf("%s at %s:%d born at %s", __PRETTY_FUNCTION__, __FILE__, __LINE__, __func__); \
@@ -17,18 +18,18 @@ typedef int StackElem_t;
     fprintf(stderr, "[INFO] (%s:%d) " M "\n", __FILE__, __LINE__, ##__VA_ARGS__) \
 
 #define CANARY_STRUCT_CONST_INIT(canary_const) \
-    const uint64_t canary_const = canary;      \
+    const Canary_t canary_const = canary;      \
 
 #define CANARY_ELEMENT(element) element / sizeof(StackElem_t)
 
-#define CANARY_INIT(stack, canary_position) \
-    *(stack + canary_position) = canary     \
+#define CANARY_INIT(stack, canary_position)               \
+    *(Canary_t* )(stack + (char)canary_position) = canary \
 
 #define CANARY_STRUCT_CHECK(canary_stack) \
     canary_stack != canary                \
 
-#define CANARY_END_CHECK(stack, canary_position) \
-    *(stack + canary_position) != canary         \
+#define CANARY_END_CHECK(stack, canary_position)           \
+    *(Canary_t* )(stack + (char)canary_position) != canary \
 
 #define HASH_SUM_VARIABLE(name_of_const) \
     uint32_t hash_sum;                   \
@@ -36,10 +37,22 @@ typedef int StackElem_t;
 #define COUNT_HASH_SUM(stackInfo) \
     count_hash_sum(stackInfo);    \
 
+// #undef ASSERT
+// #undef STACK_ASSERT_FUNC
+// #undef LOG_INFO
+// #undef CANARY_STRUCT_CONST_INIT
+// #undef CANARY_INIT
+// #undef CANARY_ELEMENT
+// #undef CANARY_INIT
+// #undef CANARY_STRUCT_CHECK
+// #undef CANARY_END_CHECK
+// #undef HASH_SUM_VARIABLE
+// #undef HASH_SUM_VARIABLE
+
 #define CHECK_CANARY_PROTECTION                                                                      \
     if (CANARY_STRUCT_CHECK(stackInfo->start_struct_canary) ||                                       \
         CANARY_STRUCT_CHECK(stackInfo->end_struct_canary)   ||                                       \
-        CANARY_END_CHECK   (stackInfo->stack, stackInfo->capacity))                                  \
+        CANARY_END_CHECK   (stackInfo->stack, (char)stackInfo->capacity * sizeof(StackElem_t)))                                  \
     {                                                                                                \
         graphic_printf(RED, BOLD, "FUCK YOU CANARY\n");                                              \
         printf("%d\n", CANARY_STRUCT_CHECK(stackInfo->start_struct_canary));                         \
@@ -58,7 +71,7 @@ typedef int StackElem_t;
         ASSERT(0 && "penetration error");                    \
     }                                                        \
 
-const uint64_t canary = 123;
+const uint64_t canary = 12345678;
 
 enum STACK_ERROR
 {
