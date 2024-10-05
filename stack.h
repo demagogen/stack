@@ -24,27 +24,6 @@ typedef uint64_t Canary_t;
 #define LOG_INFO(M, ...)                                                         \
     fprintf(stderr, "[INFO] (%s:%d) " M "\n", __FILE__, __LINE__, ##__VA_ARGS__) \
 
-/********************************************************DEFINE HASH PROTECT******************************************************************/
-#define HASH_PROTECT
-
-#ifdef HASH_PROTECT
-#define HASH_SUM_VARIABLE(name_of_const) \
-    uint32_t hash_sum = 0;               \
-
-#define COUNT_HASH_SUM(stackInfo) \
-    count_hash_sum(stackInfo);    \
-
-#define CHECK_HASH_SUM(stack)                                \
-    if (check_hash_sum(stack))                               \
-    {                                                        \
-        stack_dump(stackInfo);                               \
-        graphic_printf(RED, BOLD, "fucking hash checker\n"); \
-        assert(0 && "penetration error\n");                  \
-        ASSERT(0 && "penetration error");                    \
-    }                                                        \
-
-#endif
-
 /********************************************************DEFINE CANARY PROTECT***************************************************************/
 #define CANARY_PROTECT
 
@@ -66,21 +45,22 @@ const Canary_t canary = 1234567; // test canary value (add rand())
 #define CANARY_VALUE_CHECK(canary_stack) \
     canary_stack != canary               \
 
-#define CANARY_STACK_CHECK(stack, canary_position)           \
-    *(Canary_t* )((char* )stack + canary_position) != canary \
+#define CANARY_STACK_CHECK(stackInfo)                                                                              \
+    *(Canary_t* )((char* )stackInfo->stack) != canary &&                                                           \
+    *(Canary_t* )((char* )stackInfo->stack + sizeof(Canary_t) + stackInfo->capacity*sizeof(StackElem_t)) != canary \
 
-#define CHECK_CANARY_PROTECTION                                                                                \
-    if (CANARY_VALUE_CHECK(stackInfo->first_struct_canary)  ||                                                 \
-        CANARY_VALUE_CHECK(stackInfo->second_struct_canary) ||                                                 \
-        CANARY_STACK_CHECK   (stackInfo->stack, stackInfo->capacity * sizeof(StackElem_t) + sizeof(Canary_t))) \
-    {                                                                                                          \
-        graphic_printf(RED, BOLD, "FUCK YOU CANARY\n");                                                        \
-        graphic_printf(RED, BOLD, "%d\n", CANARY_VALUE_CHECK(stackInfo->first_struct_canary));                 \
-        graphic_printf(RED, BOLD, "%d\n", CANARY_VALUE_CHECK(stackInfo->second_struct_canary));                \
-        graphic_printf(RED, BOLD, "%d\n", CANARY_STACK_CHECK(stackInfo->stack, stackInfo->capacity));          \
-        stack_dump(stackInfo);                                                                                 \
-        ASSERT(0 && "canary died :-(");                                                                        \
-    }                                                                                                          \
+#define CHECK_CANARY_PROTECTION(stackInfo)                                                            \
+    if (CANARY_VALUE_CHECK(stackInfo->first_struct_canary)  ||                                        \
+        CANARY_VALUE_CHECK(stackInfo->second_struct_canary) ||                                        \
+        CANARY_STACK_CHECK(stackInfo))                                                                \
+    {                                                                                                 \
+        graphic_printf(RED, BOLD, "FUCK YOU CANARY\n");                                               \
+        graphic_printf(RED, BOLD, "%d\n", CANARY_VALUE_CHECK(stackInfo->first_struct_canary));        \
+        graphic_printf(RED, BOLD, "%d\n", CANARY_VALUE_CHECK(stackInfo->second_struct_canary));       \
+        graphic_printf(RED, BOLD, "%d\n", CANARY_STACK_CHECK(stackInfo));                             \
+        stack_dump(stackInfo);                                                                        \
+        ASSERT(0 && "canary died :-(");                                                               \
+    }                                                                                                 \
 
 #endif
 
@@ -116,7 +96,7 @@ struct STACK
     FILE*                       dump_file;
     int                         size;
     int                         capacity;
-    STACK_ERROR                 stack_error;
+    STACK_ERROR                 error_info;
 
     #ifdef HASH_PROTECT
     HASH_SUM_VARIABLE          (hash_sum);
@@ -139,11 +119,5 @@ int         verify_stack       (STACK* stackInfo);
 const char* stack_struct_error (STACK* stackInfo, STACK_ERROR stack_error);
 int         realloc_up         (STACK* stackInfo);
 int         realloc_down       (STACK* stackInfo);
-
-#ifdef HASH_PROTECT
-uint32_t    gnu_hash           (const StackElem_t* element);
-int         count_hash_sum     (STACK* stackInfo);
-bool        check_hash_sum     (STACK* stackInfo);
-#endif
 
 #endif

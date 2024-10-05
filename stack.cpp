@@ -7,18 +7,18 @@
 
 #include "stack.h"
 #include "color_scheme_changer.h"
+#include "hash.h"
 
 
 int stack_ctor(STACK* stackInfo, size_t capacity)
 {
-
     if (capacity < 0)
     {
         return -1;
     }
     stackInfo->capacity    = capacity;
     stackInfo->size        = EMPTY;
-    stackInfo->stack_error = NONE;
+    stackInfo->error_info  = NONE;
 
     #ifdef CANARY_PROTECT
         stackInfo->stack       = (StackElem_t* ) calloc(1, stackInfo->capacity*sizeof(StackElem_t) + 2*sizeof(Canary_t));
@@ -116,22 +116,39 @@ int stack_dtor(STACK* stackInfo)
     free(stackInfo->stack);
     stackInfo->size        = 0;
     stackInfo->capacity    = 0;
-    stackInfo->stack_error = NONE;
+    stackInfo->error_info  = NONE;
 
     return 0;
 }
 
 int stack_dump(STACK* stackInfo)
 {
-    graphic_printf(WHITE, BOLD, "Stack size     %10d\n", stackInfo->size);
-    graphic_printf(WHITE, BOLD, "Stack capacity %10d\n", stackInfo->capacity);
+    printf("------------------------------------------------------------------------\n");
+    printf(" __  __  ______   _____            _____   _    _  __  __  _____  \n"
+           "|  \\/  ||  ____| / ____|    /\\    |  __ \\ | |  | ||  \\/  ||  __ \\ \n"
+           "| \\  / || |__   | |  __    /  \\   | |  | || |  | || \\  / || |__) |\n"
+           "| |\\/| ||  __|  | | |_ |  / /\\ \\  | |  | || |  | || |\\/| ||  ___/ \n"
+           "| |  | || |____ | |__| | / ____ \\ | |__| || |__| || |  | || |     \n"
+           "|_|  |_||______| \\_____|/_/    \\_\\|_____/  \\____/ |_|  |_||_|     \n\n");
+
+    if (stackInfo->error_info == NONE)
+    {
+        graphic_printf(GREEN, BOLD, "NO ERRORS\nYEEEAAAAAAHHHHHH, BIIIIIIITTTCHHHH, PROGRAAAAMIIIINNNNGG!!!!!!!!!!!!!!\n");
+    }
+    else
+    {
+        graphic_printf(RED, BOLD, "OHHHHH SHIT, ERRORS GO AGAIN...\n");
+    }
+
+    graphic_printf(WHITE, BOLD, "Stack size         %10d\n", stackInfo->size);
+    graphic_printf(WHITE, BOLD, "Stack capacity     %10d\n", stackInfo->capacity);
+    graphic_printf(WHITE, BOLD, "Stack array pointer    %p\n", stackInfo->stack);
     graphic_printf(WHITE, BOLD, "Stack elements list\n");
-    graphic_printf(WHITE, BOLD, "Stack array pointer %p\n", stackInfo->stack);
 
     #ifdef CANARY_PROTECT
         for (size_t element_index = 0; element_index < stackInfo->capacity; element_index++)
         {
-            graphic_printf(GREEN, BOLD, "\tstack[%3d]  %5d\n", element_index,
+            graphic_printf(GREEN, BOLD, "\t     stack[%3d] %5d\n", element_index,
                            *(StackElem_t* )((char* )stackInfo->stack + sizeof(Canary_t) + element_index * sizeof(StackElem_t)));
         }
     #else
@@ -142,6 +159,7 @@ int stack_dump(STACK* stackInfo)
         }
     #endif
 
+    printf("------------------------------------------------------------------------\n");
     return 0;
 }
 
@@ -152,7 +170,7 @@ int verify_stack(STACK* stackInfo)
     #endif
 
     #ifdef CANARY_PROTECT
-        CHECK_CANARY_PROTECTION;
+        CHECK_CANARY_PROTECTION(stackInfo);
     #endif
 
     if (stackInfo->size < -1)
@@ -168,7 +186,7 @@ int verify_stack(STACK* stackInfo)
     if (stackInfo->size > -1 && stackInfo->capacity > 0 && !stackInfo->stack)
     {
         stack_dump(stackInfo);
-        ASSERT(0 && "verify stack_error: null pointer on filled stack\n");
+        ASSERT(0 && "verify stack error: null pointer on filled stack\n");
     }
     if (stackInfo->size > stackInfo->capacity)
     {
@@ -178,12 +196,12 @@ int verify_stack(STACK* stackInfo)
     return 0;
 }
 
-const char* stack_struct_error(STACK* stackInfo, STACK_ERROR stack_error)
+const char* stack_struct_error(STACK* stackInfo, STACK_ERROR error_info)
 {
     #define DESCRIPTION_(_error) \
         case _error: return #_error
 
-    switch(stack_error)
+    switch(error_info)
     {
         DESCRIPTION_(NONE);
         DESCRIPTION_(STACK_BAD_PTR);
@@ -205,11 +223,17 @@ int realloc_up(STACK* stackInfo)
 
     size_t memory_multiply_coeff = 2;
     stackInfo->capacity *= memory_multiply_coeff;
+    #ifdef CANARY_PROTECT
+        stackInfo->stack = (StackElem_t* ) realloc(stackInfo->stack,
+                                                   stackInfo->capacity*sizeof(StackElem_t) + 2*sizeof(Canary_t));
+    #else
     stackInfo->stack = (StackElem_t* ) realloc(stackInfo->stack,
                                         stackInfo->capacity*sizeof(StackElem_t));
+    #endif
+
     if (!stackInfo->stack)
     {
-        stackInfo->stack_error = STACK_ALLOCATION_ERROR;
+        stackInfo->error_info = STACK_ALLOCATION_ERROR;
         stack_dump(stackInfo);
         ASSERT(0);
         return -1;
@@ -225,11 +249,17 @@ int realloc_up(STACK* stackInfo)
 int realloc_down(STACK* stackInfo)
 {
     stackInfo->capacity = stackInfo->capacity / 2 + 2;
-    stackInfo->stack = (StackElem_t* ) realloc(stackInfo->stack,
-                                               stackInfo->capacity*sizeof(StackElem_t));
+    #ifdef CANARY_PROTECT
+        stackInfo->stack = (StackElem_t* ) realloc(stackInfo->stack,
+                                                   stackInfo->capacity*sizeof(StackElem_t) + 2*sizeof(Canary_t));
+    #else
+        stackInfo->stack = (StackElem_t* ) realloc(stackInfo->stack,
+                                                   stackInfo->capacity*sizeof(StackElem_t));
+    #endif
+
     if (!stackInfo->stack)
     {
-        stackInfo->stack_error = STACK_ALLOCATION_ERROR;
+        stackInfo->error_info = STACK_ALLOCATION_ERROR;
         stack_dump(stackInfo);
         ASSERT(0);
         return -1;
@@ -241,47 +271,3 @@ int realloc_down(STACK* stackInfo)
 
     return 0;
 }
-
-uint32_t gnu_hash(const StackElem_t* element)
-{
-    uint32_t hash_coefficient = 5381;
-    uint32_t hash_result      = 0;
-
-    for (; *element; element++) {
-        hash_result = (hash_coefficient << 5) + hash_coefficient + *element;
-    }
-
-    return hash_result;
-}
-
-#ifdef HASH_PROTECT
-int count_hash_sum(STACK* stackInfo)
-{
-    stackInfo->hash_sum = 0;
-    for (int stack_element = 0; stack_element < stackInfo->size; stack_element++)
-    {
-        stackInfo->hash_sum += gnu_hash((const StackElem_t* ) ((char* )stackInfo->stack + stack_element*sizeof(StackElem_t)));
-    }
-
-    return 0;
-}
-
-bool check_hash_sum(STACK* stackInfo)
-{
-    // verify_stack(stackInfo);
-
-    uint32_t check_hash_sum = 0;
-    for (int stack_element = 0; stack_element < stackInfo->size; stack_element++)
-    {
-        check_hash_sum += gnu_hash((const StackElem_t* ) ((char* )stackInfo->stack + stack_element*sizeof(StackElem_t)));
-    }
-    if (stackInfo->hash_sum == check_hash_sum)
-    {
-        return false;
-    }
-    else
-    {
-        return true;
-    }
-}
-#endif
