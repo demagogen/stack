@@ -10,7 +10,7 @@ int main() {
     stack_dump(&stackInfo);
 
     char* pointer = (char* )stackInfo.stack;
-    for (size_t index = 0; index < stackInfo.capacity; index++)
+    for (ssize_t index = 0; index < stackInfo.capacity; index++)
     {
         *((char* )stackInfo.stack + index * sizeof(int)) = index;
     }

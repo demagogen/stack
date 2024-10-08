@@ -9,7 +9,7 @@
 #include "stack_typedefs.h"
 // #define UNPROTECT
 
-STACK_ERROR stack_ctor(STACK* stackInfo, ssize_t capacity)
+STACK_ERROR _stack_ctor(STACK* stackInfo, ssize_t capacity, const char* __FILE, const int __LINE, const char* __func)
 {
     if (capacity < 0)
     {
@@ -38,7 +38,7 @@ STACK_ERROR stack_ctor(STACK* stackInfo, ssize_t capacity)
     return NONE;
 }
 
-STACK_ERROR stack_push(STACK* stackInfo, StackElem_t elem, ...)
+STACK_ERROR _stack_push(STACK* stackInfo, StackElem_t elem, const char* __FILE, const int __LINE, const char* __func)
 {
     verify_stack(stackInfo);
 
@@ -62,7 +62,7 @@ STACK_ERROR stack_push(STACK* stackInfo, StackElem_t elem, ...)
     return NONE;
 }
 
-STACK_ERROR stack_pop(STACK* stackInfo, StackElem_t* value)
+STACK_ERROR _stack_pop(STACK* stackInfo, StackElem_t* value, const char* __FILE, const int __LINE, const char* __func)
 {
     verify_stack(stackInfo);
 
@@ -95,7 +95,7 @@ STACK_ERROR stack_pop(STACK* stackInfo, StackElem_t* value)
     return NONE;
 }
 
-STACK_ERROR stack_realloc(STACK* stackInfo, RESIZE param)
+STACK_ERROR _stack_realloc(STACK* stackInfo, RESIZE param, const char* __FILE, const int __LINE, const char* __func)
 {
     if (param == INCREASE)
     {
@@ -113,7 +113,7 @@ STACK_ERROR stack_realloc(STACK* stackInfo, RESIZE param)
     return NONE;
 }
 
-STACK_ERROR stack_dtor(STACK* stackInfo)
+STACK_ERROR _stack_dtor(STACK* stackInfo, const char* __FILE, const int __LINE, const char* __func)
 {
     verify_stack(stackInfo);
 
@@ -125,7 +125,7 @@ STACK_ERROR stack_dtor(STACK* stackInfo)
     return NONE;
 }
 
-STACK_ERROR stack_dump(STACK* stackInfo)
+STACK_ERROR _stack_dump(STACK* stackInfo, const char* __FILE, const int __LINE, const char* __func)
 {
     printf("------------------------------------------------------------------------\n");
     printf(" __  __  ______   _____            _____   _    _  __  __  _____        \n"
@@ -151,13 +151,13 @@ STACK_ERROR stack_dump(STACK* stackInfo)
     graphic_printf(WHITE, BOLD, "Stack elements list\n");
 
     #ifdef CANARY_PROTECT
-    for (size_t element_index = 0; element_index < stackInfo->capacity; element_index++)
+    for (ssize_t element_index = 0; element_index < stackInfo->capacity; element_index++)
     {
         graphic_printf(GREEN, BOLD, "\t     stack[%3d] %5d\n", element_index,
                        *(StackElem_t* )((char* )stackInfo->stack + sizeof(Canary_t) + element_index * sizeof(StackElem_t)));
     }
     #else
-    for (size_t element_index = 0; element_index < stackInfo->capacity; element_index++)
+    for (ssize_t element_index = 0; element_index < stackInfo->capacity; element_index++)
     {
         graphic_printf(GREEN, BOLD, "\tstack[%3d]  %5d\n", element_index,
                        *(StackElem_t* )((char* )stackInfo->stack + element_index * sizeof(StackElem_t)));
@@ -168,7 +168,7 @@ STACK_ERROR stack_dump(STACK* stackInfo)
     return NONE;
 }
 
-STACK_ERROR verify_stack(STACK* stackInfo)
+STACK_ERROR _verify_stack(STACK* stackInfo, const char* __FILE, const int __LINE, const char* __func)
 {
     #ifdef HASH_PROTECT
     CHECK_HASH_SUM(stackInfo);
@@ -205,7 +205,7 @@ STACK_ERROR verify_stack(STACK* stackInfo)
     return NONE;
 }
 
-const char* stack_struct_error(STACK* stackInfo)
+const char* _stack_struct_error(STACK* stackInfo, const char* __FILE, const int __LINE, const char* __func)
 {
     #define DESCRIPTION_(_error) \
         case _error: return #_error
@@ -226,7 +226,7 @@ const char* stack_struct_error(STACK* stackInfo)
     #undef DESCRIPTION_
 }
 
-STACK_ERROR realloc_up(STACK* stackInfo)
+STACK_ERROR _realloc_up(STACK* stackInfo, const char* __FILE, const int __LINE, const char* __func)
 {
     verify_stack(stackInfo);
 
@@ -262,7 +262,7 @@ STACK_ERROR realloc_up(STACK* stackInfo)
     return NONE;
 }
 
-STACK_ERROR realloc_down(STACK* stackInfo)
+STACK_ERROR _realloc_down(STACK* stackInfo, const char* __FILE, const int __LINE, const char* __func)
 {
     stackInfo->capacity = stackInfo->capacity / 2 + 2;
     #ifdef CANARY_PROTECT
