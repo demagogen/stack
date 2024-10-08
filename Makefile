@@ -39,4 +39,3 @@ makedir:
 clean:
 	@rm -f $(OBJECTS_DIR)/*.o
 	@rm -f $(OBJECTS_DIR)/$(OUTFILE)
-
