@@ -26,7 +26,6 @@ int count_hash_sum(STACK* stackInfo)
     {
         stackInfo->hash_sum += gnu_hash((const StackElem_t* ) ((char* )stackInfo->stack + stack_element*sizeof(StackElem_t)));
     }
-    graphic_printf(RED, BOLD, "stackInfo->hash_sum = %lld\n", stackInfo->hash_sum);
     return 0;
 }
 

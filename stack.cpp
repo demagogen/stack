@@ -11,6 +11,7 @@
 
 STACK_ERROR _stack_ctor(STACK* stackInfo, ssize_t capacity, const char* __FILE, const int __LINE, const char* __func)
 {
+    ASSERT(stackInfo->stack, __FILE, __LINE, __func);
     if (capacity < 0)
     {
         return STACK_BAD_CAPACITY;
@@ -22,14 +23,13 @@ STACK_ERROR _stack_ctor(STACK* stackInfo, ssize_t capacity, const char* __FILE, 
     #ifdef CANARY_PROTECT
     stackInfo->stack = (StackElem_t* ) calloc(1, stackInfo->capacity * sizeof(StackElem_t) + 2 * sizeof(Canary_t));
     CANARY_INIT(stackInfo);
-    stackInfo->first_struct_canary = canary;
+    stackInfo->first_struct_canary  = canary;
     stackInfo->second_struct_canary = canary;
     #else
     stackInfo->stack = (StackElem_t* ) calloc(1, stackInfo->capacity * sizeof(StackElem_t));
     #endif
 
     #ifdef HASH_PROTECT
-    graphic_printf(YELLOW, BOLD, "I AM HERE\n");
     count_hash_sum(stackInfo);
     #endif
 
@@ -66,6 +66,8 @@ STACK_ERROR _stack_pop(STACK* stackInfo, StackElem_t* value, const char* __FILE,
 {
     verify_stack(stackInfo);
 
+    const int realloc_coeff = 4;
+
     if (stackInfo->size == -1)
     {
         graphic_printf(RED, BOLD, "stack pop error: pop from empty stack\n");
@@ -82,7 +84,7 @@ STACK_ERROR _stack_pop(STACK* stackInfo, StackElem_t* value, const char* __FILE,
     #endif
 
     stackInfo->size--;
-    if (stackInfo->size < stackInfo->capacity / 2 + 2)
+    if (stackInfo->size < stackInfo->capacity / realloc_coeff)
     {
         stack_realloc(stackInfo, DECREASE);
     }

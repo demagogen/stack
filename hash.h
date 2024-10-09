@@ -4,8 +4,6 @@
 #include "stack.h"
 #include "stack_typedefs.h"
 
-#define HASH_PROTECT
-
 #ifdef HASH_PROTECT
 
 #define HASH_SUM_VARIABLE  \
@@ -17,7 +15,6 @@
 #define CHECK_HASH_SUM(stackInfo)                            \
     if (check_hash_sum(stackInfo))                           \
     {                                                        \
-        graphic_printf(YELLOW, BOLD, "HASH_SUM ERROR\n");    \
         stack_dump(stackInfo);                               \
         graphic_printf(RED, BOLD, "fucking hash checker\n"); \
         stackInfo->error_info = HASH_SUM_ERROR;              \
