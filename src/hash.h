@@ -17,8 +17,8 @@
     {                                                        \
         stack_dump(stackInfo);                               \
         graphic_printf(RED, BOLD, "fucking hash checker\n"); \
-        stackInfo->error_info = HASH_SUM_ERROR;              \
-        return HASH_SUM_ERROR;                               \
+        stackInfo->error_info = STACK_HASH_SUM_ERROR;        \
+        return STACK_HASH_SUM_ERROR;                         \
     }                                                        \
 
 uint32_t gnu_hash       (const StackElem_t* element);

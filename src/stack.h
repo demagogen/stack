@@ -50,13 +50,13 @@ const Canary_t canary = 12345678; // test canary value (add rand())
         CANARY_STACK_CHECK(stackInfo))                                                          \
     {                                                                                           \
         graphic_printf(YELLOW, BOLD, "DONT GIVE UP!!!\n");                                      \
-        stackInfo->error_info = CANARY_DIED;                                                    \
+        stackInfo->error_info = STACK_CANARY_DIED;                                              \
         graphic_printf(RED, BOLD, "FUCK YOU CANARY\n");                                         \
         graphic_printf(RED, BOLD, "%d\n", CANARY_VALUE_CHECK(stackInfo->first_struct_canary));  \
         graphic_printf(RED, BOLD, "%d\n", CANARY_VALUE_CHECK(stackInfo->second_struct_canary)); \
         graphic_printf(RED, BOLD, "%d\n", CANARY_STACK_CHECK(stackInfo));                       \
         stack_dump(stackInfo);                                                                  \
-        return CANARY_DIED;                                                                     \
+        return STACK_CANARY_DIED;                                                               \
     }                                                                                           \
 
 #endif

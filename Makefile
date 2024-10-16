@@ -1,9 +1,18 @@
-CC=g++
+CC = g++
 
-OBJECTS_DIR=build
-OUTFILE=stack
+OBJECTS_DIR   = build
+OUTFILE 	  = stack
 
-SOURCES=main.cpp stack.cpp color_scheme_changer.cpp hash.cpp
+SOURCES 	  = main.cpp stack.cpp color_scheme_changer.cpp hash.cpp
+
+BOLD_RED 	  = \033[1;31m
+BOLD_GREEN 	  = \033[1;32m
+BOLD_YELLOW	  = \033[1;33m
+BOLD_BLUE	  = \033[1;34m
+BOLD_MAGENTA  = \033[1;35m
+BOLD_CYAN	  = \033[1;36m
+BOLD_WHITE	  = \033[1;37m
+DEFAULT_STYLE = \033[0m
 
 CFLAGS= -D _DEBUG -ggdb3 -std=c++17 -O0 -Wall -Wextra -Weffc++ -Waggressive-loop-optimizations 				\
 		-Wc++14-compat -Wmissing-declarations -Wcast-align -Wcast-qual -Wchar-subscripts 					\
@@ -21,7 +30,7 @@ CFLAGS= -D _DEBUG -ggdb3 -std=c++17 -O0 -Wall -Wextra -Weffc++ -Waggressive-loop
 		nonnull-attribute,null,object-size,return,returns-nonnull-attribute,shift,signed-integer-overflow,$	\
 		undefined,unreachable,vla-bound,vptr
 
-OBJECT_FILES=$(addsuffix .o,$(basename $(SOURCES)))
+OBJECT_FILES = $(addsuffix .o,$(basename $(SOURCES)))
 
 .PHONY: clean all makedir
 
@@ -29,13 +38,17 @@ all: makedir $(OUTFILE)
 
 $(OUTFILE): $(OBJECT_FILES)
 	$(CC) $(addprefix $(OBJECTS_DIR)/,$^) -o $(OBJECTS_DIR)/$(OUTFILE)
+	@printf "$(BOLD_GREEN)DONE$(DEFAULT_STYLE)\n"
 
-$(OBJECT_FILES): %.o: %.cpp
+$(OBJECT_FILES): %.o: src/%.cpp
 	$(CC) -c $^ -o $(OBJECTS_DIR)/$@
+	@printf "$(BOLD_GREEN)compiled $^$(DEFAULT_STYLE)\n"
 
 makedir:
 	@mkdir -p $(OBJECTS_DIR)
 
 clean:
-	@rm -f $(OBJECTS_DIR)/*.o
-	@rm -f $(OBJECTS_DIR)/$(OUTFILE)
+	@rm -f   $(OBJECTS_DIR)/*.o
+	@printf "$(BOLD_YELLOW)cleaned $(OBJECTS_DIR)/*.o $(DEFAULT_STYLE)\n"
+	@rm -f   $(OBJECTS_DIR)/$(OUTFILE)
+	@printf "$(BOLD_YELLOW)cleaned $(OBJECTS_DIR)/$(OUTFILE) $(DEFAULT_STYLE)\n"

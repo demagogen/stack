@@ -12,13 +12,14 @@
 STACK_ERROR _stack_ctor(STACK* stackInfo, ssize_t capacity, const char* __FILE, const int __LINE, const char* __func)
 {
     ASSERT(stackInfo->stack, __FILE, __LINE, __func);
+
     if (capacity < 0)
     {
         return STACK_BAD_CAPACITY;
     }
     stackInfo->capacity   = capacity;
     stackInfo->size       = EMPTY;
-    stackInfo->error_info = NONE;
+    stackInfo->error_info = STACK_NONE;
 
     #ifdef CANARY_PROTECT
     stackInfo->stack = (StackElem_t* ) calloc(1, stackInfo->capacity * sizeof(StackElem_t) + 2 * sizeof(Canary_t));
@@ -35,7 +36,7 @@ STACK_ERROR _stack_ctor(STACK* stackInfo, ssize_t capacity, const char* __FILE, 
 
     verify_stack(stackInfo);
 
-    return NONE;
+    return STACK_NONE;
 }
 
 STACK_ERROR _stack_push(STACK* stackInfo, StackElem_t elem, const char* __FILE, const int __LINE, const char* __func)
@@ -59,7 +60,7 @@ STACK_ERROR _stack_push(STACK* stackInfo, StackElem_t elem, const char* __FILE, 
     CHECK_HASH_SUM(stackInfo);
     #endif
 
-    return NONE;
+    return STACK_NONE;
 }
 
 STACK_ERROR _stack_pop(STACK* stackInfo, StackElem_t* value, const char* __FILE, const int __LINE, const char* __func)
@@ -94,7 +95,7 @@ STACK_ERROR _stack_pop(STACK* stackInfo, StackElem_t* value, const char* __FILE,
     CHECK_HASH_SUM(stackInfo);
     #endif
 
-    return NONE;
+    return STACK_NONE;
 }
 
 STACK_ERROR _stack_realloc(STACK* stackInfo, RESIZE param, const char* __FILE, const int __LINE, const char* __func)
@@ -109,10 +110,10 @@ STACK_ERROR _stack_realloc(STACK* stackInfo, RESIZE param, const char* __FILE, c
     }
     else
     {
-        return UNKNOWN_PARAM;
+        return STACK_UNKNOWN_PARAM;
     }
 
-    return NONE;
+    return STACK_NONE;
 }
 
 STACK_ERROR _stack_dtor(STACK* stackInfo, const char* __FILE, const int __LINE, const char* __func)
@@ -122,9 +123,9 @@ STACK_ERROR _stack_dtor(STACK* stackInfo, const char* __FILE, const int __LINE, 
     free(stackInfo->stack);
     stackInfo->size        = 0;
     stackInfo->capacity    = 0;
-    stackInfo->error_info  = NONE;
+    stackInfo->error_info  = STACK_NONE;
 
-    return NONE;
+    return STACK_NONE;
 }
 
 STACK_ERROR _stack_dump(STACK* stackInfo, const char* __FILE, const int __LINE, const char* __func)
@@ -137,9 +138,9 @@ STACK_ERROR _stack_dump(STACK* stackInfo, const char* __FILE, const int __LINE, 
            "| |  | || |____ | |__| | / ____ \\ | |__| || |__| || |  | || |          \n"
            "|_|  |_||______| \\_____|/_/    \\_\\|_____/  \\____/ |_|  |_||_|     \n\n");
 
-    if (stackInfo->error_info == NONE)
+    if (stackInfo->error_info == STACK_NONE)
     {
-        graphic_printf(GREEN, BOLD, "NO ERRORS\nYEEEAAAAAAHHHHHH, BIIIIIIITTTCHHHH, PROGRAAAAMIIIINNNNGG!!!!!!!!!!!!!!\n");
+        graphic_printf(GREEN, BOLD, "NO ERRORS\nGOOOOOOOOOOOOL\n");
     }
     else
     {
@@ -167,7 +168,7 @@ STACK_ERROR _stack_dump(STACK* stackInfo, const char* __FILE, const int __LINE, 
     #endif
     printf("------------------------------------------------------------------------\n");
 
-    return NONE;
+    return STACK_NONE;
 }
 
 STACK_ERROR _verify_stack(STACK* stackInfo, const char* __FILE, const int __LINE, const char* __func)
@@ -204,7 +205,7 @@ STACK_ERROR _verify_stack(STACK* stackInfo, const char* __FILE, const int __LINE
         stack_dump(stackInfo);
         return STACK_OVERFLOW;
     }
-    return NONE;
+    return STACK_NONE;
 }
 
 const char* _stack_struct_error(STACK* stackInfo, const char* __FILE, const int __LINE, const char* __func)
@@ -214,7 +215,7 @@ const char* _stack_struct_error(STACK* stackInfo, const char* __FILE, const int 
 
     switch(stackInfo->error_info)
     {
-        DESCRIPTION_(NONE);
+        DESCRIPTION_(STACK_NONE);
         DESCRIPTION_(STACK_BAD_PTR);
         DESCRIPTION_(STACK_BAD_SIZE);
         DESCRIPTION_(STACK_UNDERFLOW);
@@ -261,7 +262,7 @@ STACK_ERROR _realloc_up(STACK* stackInfo, const char* __FILE, const int __LINE, 
         CANARY_INIT(stackInfo);
     #endif
 
-    return NONE;
+    return STACK_NONE;
 }
 
 STACK_ERROR _realloc_down(STACK* stackInfo, const char* __FILE, const int __LINE, const char* __func)
@@ -286,5 +287,5 @@ STACK_ERROR _realloc_down(STACK* stackInfo, const char* __FILE, const int __LINE
     CANARY_INIT(stackInfo);
     #endif
 
-    return NONE;
+    return STACK_NONE;
 }
