@@ -81,7 +81,7 @@ STACK_ERROR _stack_pop(STACK* stackInfo, StackElem_t* value, const char* __FILE,
     *(StackElem_t* )((char* )stackInfo->stack + sizeof(Canary_t) + stackInfo->size * sizeof(StackElem_t)) = EMPTY;
     #else
     *value = stackInfo->stack[stackInfo->size];
-    *(StackElem_t* )((char* )stackInfo->stack + stackInfo->size * sizeof(StackElem_t)) = EMPTY;
+    *(StackElem_t* )((char* )stackInfo->stack + stackInfo->size * sizeof(StackElem_t)) = ZERO;
     #endif
 
     stackInfo->size--;
@@ -245,7 +245,7 @@ STACK_ERROR _realloc_up(STACK* stackInfo, const char* __FILE, const int __LINE, 
     #else
     stackInfo->stack = (StackElem_t* ) realloc(stackInfo->stack,
                                                stackInfo->capacity * sizeof(StackElem_t));
-    for (ssize_t element_index = stackInfo->size; element_index < stackInfo->capacity; element_index++)
+    for (ssize_t element_index = stackInfo->size + 1; element_index < stackInfo->capacity; element_index++)
     {
         *(StackElem_t* )((char* )stackInfo->stack + element_index * sizeof(StackElem_t)) = 0;
     }

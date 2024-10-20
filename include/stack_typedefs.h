@@ -28,7 +28,8 @@ enum STACK_ERROR
 enum STACK_ENUMS
 {
     EMPTY      = -1,
-    ERROR_FILL =  0
+    ZERO       =  0,
+    ERROR_FILL =  1
 };
 
 struct STACK

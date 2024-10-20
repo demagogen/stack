@@ -1,7 +1,9 @@
 #include "stack.h"
+#include "hash.h"
 
-int main(int argc, const char* argv[]) {
-    STACK* stackInfo = {};
+int main()
+{
+    STACK stackInfo = {};
 
     return 0;
 }
